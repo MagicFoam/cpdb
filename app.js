@@ -7,7 +7,9 @@ var bodyParser = require('body-parser');
 
 var dbConfig = require('./db');
 var mongoose = require('mongoose');
+
 // Connect to DB
+
 mongoose.connect(dbConfig.url);
 
 var app = express();
@@ -28,7 +30,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Configuring Passport
 var passport = require('passport');
 var expressSession = require('express-session');
-// TODO - Why Do we need this key ?
+
+/* TODO - Why Do we need this key ? */
 app.use(expressSession({
 	secret: 'mySecretKey',
 	resave: true,
@@ -59,7 +62,7 @@ app.use(function(req, res, next) {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
-    app.use(function(err, req, res, next) {
+    app.use(function(err, req, res) {
         res.status(err.status || 500);
         res.render('error', {
             message: err.message,
