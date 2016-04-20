@@ -4,15 +4,35 @@ block content
 	div.container
 		div.row
 			div.col-sm-6.col-md-4.col-md-offset-4
-				h1.text-center.login-title Registration Details
+				h1.text-center.login-title Регистрация
 					div.signup-wall
 						form(class='form-signin', action='/signup', method='POST')
-							input(type='text', name='username', class='form-control', placeholder='Username',required, autofocus)
-							input(type='password', name='password', class='form-control nomargin', placeholder='Password', required)
-							input(type='email', name='email', class='form-control', placeholder='Email',required)
-							input(type='text', name='firstName', class='form-control', placeholder='First Name',required)
-							input(type='text', name='lastName', class='form-control', placeholder='Last Name',required)
-							button(class='btn btn-lg btn-primary btn-block', type='submit') Register
+							input(type='text', name='username', class='form-control',
+									placeholder='Имя пользователя',required, autofocus)
+							input(type='password', name='password', class='form-control',
+									placeholder='Пароль', required)
+							input(type='email', name='email', class='form-control', placeholder='E-mail',required)
+							input(type='text', name='firstName', class='form-control',
+									placeholder='Имя',required)
+							input(type='text', name='lastName', class='form-control', placeholder='Фамилия',required)
+							p(class='form-date-par')
+								| Дата рождения:
+								input(type='date', class='form-date-date',name='day', value='1900-01-01', max='2010-01-01',
+								min='1900-01-01')
+							p
+							b Ваш пол:
+							br
+							input(type='radio', class='form-radio', name='gender', value='m')
+							|Мужской
+							input(type='radio', class='form-radio', name='gender', value='f')
+							|Женский
+							br
+							br
+							p
+								b Ваши интересы:
+							p
+								textarea(rows='10', cols='25', name='text')
+							button(class='btn btn-lg btn-primary btn-block', type='submit') Зарегистрироваться
 							span.clearfix
 					#message
 						if message
