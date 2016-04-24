@@ -1,2 +1,6 @@
 node_modules/
 .idea/
+package.json~
+cpdb.db
+app.js~
+db.js~
