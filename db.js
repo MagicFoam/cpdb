@@ -7,6 +7,7 @@ var sequelize = new Sequelize('main', null, null, {
 		min: 0,
 		idle: 10000
 	},
+	//timezone: '+03:00', // not supported, dates must be always in UTC+0
 	// SQLite only
 	storage: '/home/igor/cpdb/cpdb.db'
 });

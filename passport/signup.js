@@ -24,6 +24,8 @@ module.exports = function(passport){
                             newUser.firstName = req.body.firstName;
                             newUser.lastName = req.body.lastName;
                             newUser.gender = req.body.gender;
+                            var date = req.body.date.split('/');
+                            newUser.birthday = new Date(date[2], date[1] - 1, date[0], 4, 0, 0, 0);
                             // save the user
                             newUser.save().then(
                                 function(saveduser) {

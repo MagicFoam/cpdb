@@ -1,6 +1,13 @@
 extends layout
 
 block content
+	link(rel='stylesheet', type='text/css', href='/stylesheets/calendar.css')
+	script(language='javascript', type='text/javascript', src='/scripts/calendar.js')
+	script(type='text/javascript').
+		$(document).ready(function () {
+			$('#calendar').simpleDatepicker();
+			// Привязать вызов календаря к полю с CSS идентификатором #calendar
+		});
 	div.container
 		div.row
 			div.col-sm-6.col-md-4.col-md-offset-4
@@ -23,7 +30,8 @@ block content
 							input(type='radio', class='form-radio', name='gender', value='f')
 							|Женский
 							br
-							br
+							input#calendar(type='text', name='date', class='form-control', required,
+											placeholder='Дата рождения')
 							p
 								b Ваши интересы:
 							p
