@@ -1,5 +1,9 @@
+"use strict";
+
 var LocalStrategy   = require('passport-local').Strategy;
 var usr = require('../models/user').user;
+var usr_stem = require('../models/user_stem').usr_stem;
+var stemmer = require('../stemmer.js').st;
 var bCrypt = require('bcrypt-nodejs');
 
 module.exports = function(passport){
@@ -25,10 +29,30 @@ module.exports = function(passport){
                             newUser.lastName = req.body.lastName;
                             newUser.gender = req.body.gender;
                             var date = req.body.date.split('/');
-                            newUser.birthday = new Date(date[2], date[1] - 1, date[0], 4, 0, 0, 0);
+                            newUser.birthday = new Date(date[2], date[1] - 1, date[0], 10, 0, 0, 0);
                             // save the user
                             newUser.save().then(
                                 function(saveduser) {
+                                    usr.max('id').then(function(max) {
+                                        var words = req.body.text_stem;
+                                        var stm = new stemmer();
+                                        let wrd = stm.tokenizeAndStem(words);
+                                        for (let value of wrd) {
+                                            var new_user_stem = usr_stem.build({stem: value});
+                                            new_user_stem.userId = max;
+                                            new_user_stem.save().then(
+                                                function (saved_stem) {
+                                                    //console.log(saved_stem);
+                                                    console.log('Stem saving successful');
+                                                }).catch(
+                                                function (err) {
+                                                    if (err) {
+                                                        console.log('Error in Saving stem: ' + err);
+                                                        throw err;
+                                                    }
+                                                })
+                                        }
+                                    });
                                     console.log('User Registration successful');
                                     return done(null, saveduser);
                                 }).catch(
