@@ -1,16 +1,19 @@
 var sq = require('../db.js').sq;
 var db = require('../db.js').db;
 
-var stem = db.define('stem', {
-    stem: {
+var adv = db.define('adv', {
+    name: {
+        type: sq.STRING
+    },
+    location: {
         type: sq.STRING
     }
 }, {
     freezeTableName: true
 });
 
-stem.sync();
+adv.sync();
 
 module.exports = {
-    stem: stem
+    adv: adv
 };

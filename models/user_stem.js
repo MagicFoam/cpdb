@@ -1,4 +1,3 @@
-var sq = require('../db.js').sq;
 var db = require('../db.js').db;
 var user = require('./user.js').user;
 var stem = require('./stem.js').stem;
