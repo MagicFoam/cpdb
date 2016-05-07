@@ -1,7 +1,7 @@
 var sq = require('../db.js').sq;
 var db = require('../db.js').db;
 
-var usr = db.define('user', {
+var user = db.define('user', {
 	username: {
 		type: sq.STRING
 	},
@@ -27,8 +27,8 @@ var usr = db.define('user', {
 	freezeTableName: true
 });
 
-usr.sync();
+user.sync();
 
 module.exports = {
-	user: usr
+	user: user
 };

@@ -1,8 +1,9 @@
 "use strict";
 
 var LocalStrategy   = require('passport-local').Strategy;
-var usr = require('../models/user').user;
-var usr_stem = require('../models/user_stem').usr_stem;
+var user = require('../models/user').user;
+var user_stem = require('../models/user_stem').user_stem;
+var stem = require('../models/stem').stem;
 var stemmer = require('../stemmer.js').st;
 var bCrypt = require('bcrypt-nodejs');
 
@@ -12,16 +13,16 @@ module.exports = function(passport){
         },
         function(req, username, password, done) {
             var findOrCreateUser = function() {
-                usr.findOne({ where: { username :  username } }).then(
-                    function(user) {
+                user.findOne({ where: { username :  username } }).then(
+                    function(usr) {
                         // already exists
-                        if (user) {
+                        if (usr) {
                             console.log('User already exists with username: ' + username);
                             return done(null, false, req.flash('message','User Already Exists'));
                         } else {
                             // if there is no user with that email
                             // create the user
-                            var newUser = usr.build({username: username});
+                            var newUser = user.build({username: username});
                             // set the user's local credentials
                             newUser.password = createHash(password);
                             newUser.email = req.body.email;
@@ -33,24 +34,58 @@ module.exports = function(passport){
                             // save the user
                             newUser.save().then(
                                 function(saveduser) {
-                                    usr.max('id').then(function(max) {
+
+                                    user.max('id').then(function(max) {
                                         var words = req.body.text_stem;
                                         var stm = new stemmer();
                                         let wrd = stm.tokenizeAndStem(words);
                                         for (let value of wrd) {
-                                            var new_user_stem = usr_stem.build({stem: value});
-                                            new_user_stem.userId = max;
-                                            new_user_stem.save().then(
-                                                function (saved_stem) {
-                                                    //console.log(saved_stem);
-                                                    console.log('Stem saving successful');
-                                                }).catch(
-                                                function (err) {
-                                                    if (err) {
-                                                        console.log('Error in Saving stem: ' + err);
-                                                        throw err;
+                                            stem.findOne({ where: { stem :  value } }).then(
+                                                function(stm) {
+                                                    if (!stm) {
+                                                        var new_stem = stem.build({stem: value});
+                                                        new_stem.save().then(
+                                                            function (saved_stem) {
+                                                                var new_user_stem = user_stem.build({
+                                                                    userId: max,
+                                                                    stemId: saved_stem.id
+                                                                });
+                                                                new_user_stem.save().then(
+                                                                    function (saved_user_stem) {
+                                                                        console.log('User_stem saving successful');
+                                                                    }).catch(
+                                                                    function (err) {
+                                                                        if (err) {
+                                                                            console.log('Error in Saving user_stem: ' + err);
+                                                                            throw err;
+                                                                        }
+                                                                    });
+                                                                console.log('Stem saving successful');
+                                                            }).catch(
+                                                            function (err) {
+                                                                if (err) {
+                                                                    console.log('Error in Saving stem: ' + err);
+                                                                    throw err;
+                                                                }
+                                                            });
                                                     }
-                                                })
+                                                    else {
+                                                        var new_user_stem = user_stem.build({
+                                                            userId: max,
+                                                            stemId: stm.id
+                                                        });
+                                                        new_user_stem.save().then(
+                                                            function (saved_user_stem) {
+                                                                console.log('User_stem saving successful');
+                                                            }).catch(
+                                                            function (err) {
+                                                                if (err) {
+                                                                    console.log('Error in Saving user_stem: ' + err);
+                                                                    throw err;
+                                                                }
+                                                            });
+                                                    }
+                                                });
                                         }
                                     });
                                     console.log('User Registration successful');
