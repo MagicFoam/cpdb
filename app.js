@@ -14,8 +14,8 @@ app.set('view engine', 'pug');
 // uses setup
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
-app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname + '/public')));
 
@@ -43,6 +43,9 @@ initPassport(passport);
 
 var routes = require('./routes/index')(passport);
 app.use('/', routes);
+
+var home = require('./routes/home');
+app.use('/home', home);
 
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {
