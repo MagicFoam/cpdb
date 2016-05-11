@@ -47,6 +47,9 @@ app.use('/', routes);
 var home = require('./routes/home');
 app.use('/home', home);
 
+var profile = require('./routes/profile');
+app.use('/profile', profile);
+
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {
     var err = new Error('Not Found');
