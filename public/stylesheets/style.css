@@ -6,6 +6,11 @@ body {
 a {
   color: #00B7FF;
 }
+
+.sign_out{
+    margin-left: 95%;
+}
+
 .srcbut{
     width:80px;
 }

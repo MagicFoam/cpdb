@@ -7,6 +7,25 @@ var stem = require('../models/stem').stem;
 var stemmer = require('../stemmer.js').st;
 var bCrypt = require('bcrypt-nodejs');
 
+// saving relation user-stem
+var save_user_stem = function(new_user_stem) {
+    new_user_stem.save().then(
+        function (saved_user_stem) {
+            console.log('User_stem saving successful');
+        }).catch(
+        function (err) {
+            if (err) {
+                console.log('Error in Saving user_stem: ' + err);
+                throw err;
+            }
+        });
+};
+
+// Generates hash using bCrypt
+var createHash = function(password){
+    return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
+};
+
 module.exports = function(passport){
 	passport.use('signup', new LocalStrategy({
             passReqToCallback : true // allows us to pass back the entire request to the callback
@@ -34,7 +53,6 @@ module.exports = function(passport){
                             // save the user
                             newUser.save().then(
                                 function(saveduser) {
-
                                     user.max('id').then(function(max) {
                                         var words = req.body.text_stem;
                                         var stm = new stemmer();
@@ -50,16 +68,7 @@ module.exports = function(passport){
                                                                     userId: max,
                                                                     stemId: saved_stem.id
                                                                 });
-                                                                new_user_stem.save().then(
-                                                                    function (saved_user_stem) {
-                                                                        console.log('User_stem saving successful');
-                                                                    }).catch(
-                                                                    function (err) {
-                                                                        if (err) {
-                                                                            console.log('Error in Saving user_stem: ' + err);
-                                                                            throw err;
-                                                                        }
-                                                                    });
+                                                                save_user_stem(new_user_stem);
                                                                 console.log('Stem saving successful');
                                                             }).catch(
                                                             function (err) {
@@ -74,16 +83,7 @@ module.exports = function(passport){
                                                             userId: max,
                                                             stemId: stm.id
                                                         });
-                                                        new_user_stem.save().then(
-                                                            function (saved_user_stem) {
-                                                                console.log('User_stem saving successful');
-                                                            }).catch(
-                                                            function (err) {
-                                                                if (err) {
-                                                                    console.log('Error in Saving user_stem: ' + err);
-                                                                    throw err;
-                                                                }
-                                                            });
+                                                        save_user_stem(new_user_stem);
                                                     }
                                                 });
                                         }
@@ -112,8 +112,4 @@ module.exports = function(passport){
             process.nextTick(findOrCreateUser);
         })
     );
-    // Generates hash using bCrypt
-    var createHash = function(password){
-        return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
-    }
 };

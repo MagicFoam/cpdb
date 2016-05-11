@@ -1,6 +1,8 @@
 extends layout
 
 block content
+	header
+		a.sign_out(href='/signout') Выход
 	.container
 		.row
 			.col-sm-6.col-sm-offset-3
@@ -12,12 +14,13 @@ block content
 			.col-sm-6.col-sm-offset-3
 				#imaginary_container
 						.input-group.stylish-input-group
-							input.form-control(type='text', placeholder='')
+							input.form-control(type='text', id='search_input')
 							span.input-group-btn
-								button.btn.btn-primary(type='submit', formmethod='post', id='home_search') Поиск
+								button.btn.btn-primary(type='submit', id='home_search') Поиск
 	script(type="text/javascript").
+		var id = '#{user.id}';
 		$(function () {
 			$('#home_search').click(function () {
-				$.post('/home/search', { data: 'data'}, function(data){console.log(data)});
+				$.post('/home/search', { query: $('#search_input').val(), id : id}, function(data){console.log(data)});
 			});
 		});
