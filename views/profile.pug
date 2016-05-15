@@ -1,6 +1,8 @@
 extends layout
 
 block content
+    header
+        a.back_to_search(href='/home') Назад к поиску
     div.container
         div.row
             div.col-sm-6.col-md-4.col-md-offset-4
@@ -18,4 +20,3 @@ block content
                                     else
                                         li Ваш пол: мужской
                                 li Дата рождения: #{user.birthday.getDay()}/#{user.birthday.getMonth() + 1}/#{user.birthday.getFullYear()}
-                        a(href='/home', class='text-center new-account') Назад к поиску

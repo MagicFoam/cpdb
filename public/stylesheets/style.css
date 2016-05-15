@@ -7,8 +7,31 @@ a {
   color: #00B7FF;
 }
 
+hr {
+    border: none;
+    background-color: #0074D9;
+    color: #0074D9;
+    height: 2px;
+}
+
+.my_table{
+    border-collapse: separate;
+    border-spacing: 20px;
+}
+
+.hr{
+    border: none;
+    background-color: #0074D9;
+    color: #0074D9;
+    height: 2px;
+}
+
 .sign_out{
     margin-left: 95%;
+}
+
+.back_to_search{
+    margin-left: 90%;
 }
 
 .srcbut{

@@ -79,6 +79,16 @@ module.exports = function(passport){
                                                             });
                                                     }
                                                     else {
+                                                        stm.update({
+                                                            quantity: stm.quantity + 1
+                                                        }).then(function() {}).catch(
+                                                            function (err) {
+                                                                if (err) {
+                                                                    console.log('Error in Updating stem: ' + err);
+                                                                    throw err;
+                                                                }
+                                                            }
+                                                        );
                                                         var new_user_stem = user_stem.build({
                                                             userId: max,
                                                             stemId: stm.id

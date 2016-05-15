@@ -2,14 +2,10 @@ extends layout
 
 block content
 	header
-		a.sign_out(href='/profile') Профиль
+		a.sign_out(href='/profile') #{user.firstName}
 		br
 		a.sign_out(href='/signout') Выход
-	.container
-		.row
-			.col-sm-6.col-sm-offset-3
-				#welcome
-					h1.text-center.login-title Добро пожаловать, #{user.firstName}.
+	hr.hr
 	br
 	.container
 		.row
@@ -19,6 +15,19 @@ block content
 							input.form-control(type='text', id='search_input')
 							span.input-group-btn
 								button.btn.btn-primary(type='submit', id='home_search') Поиск
+	br
+	table.my_table
+		tr
+			td картинка
+			td
+			td картинка
+		tr
+			td картинка
+			td картинка
+			td картинка
+	br
+	footer
+		hr.hr
 	script(type="text/javascript").
 		var id = '#{user.id}';
 		$(function () {

@@ -22,6 +22,24 @@ var save_user_stem = function(new_user_stem) {
             if (!usr_stm) {
                 new_user_stem.save().then(
                     function (saved_user_stem) {
+                        stem.findOne({where: {id: saved_user_stem.stemId}}).then(
+                            function(stm) {
+                            stm.update({
+                                quantity: stm.quantity + 1
+                            }).then(function() {}).catch(
+                                function (err) {
+                                    if (err) {
+                                        console.log('Error in Updating stem: ' + err);
+                                        throw err;
+                                    }
+                                }
+                            )}).catch(
+                            function (err) {
+                                if (err) {
+                                    console.log('Error in Updating stem: ' + err);
+                                    throw err;
+                                }
+                            });
                         console.log('User_stem saving successful');
                     }).catch(
                     function (err) {
@@ -30,6 +48,18 @@ var save_user_stem = function(new_user_stem) {
                             throw err;
                         }
                     });
+            }
+            else {
+                usr_stm.update({
+                    quantity: usr_stm.quantity + 1
+                }).then(function() {}).catch(
+                    function (err) {
+                        if (err) {
+                            console.log('Error in Updating stem: ' + err);
+                            throw err;
+                        }
+                    }
+                );
             }
         }).catch(
         function(err) {
@@ -61,7 +91,17 @@ router.post('/search', function(req, res, next){
                                 userId: id,
                                 stemId: saved_stem.id
                             });
-                            save_user_stem(new_user_stem);
+                            //save_user_stem(new_user_stem);
+                            new_user_stem.save().then(
+                                function (saved_user_stem) {
+                                    console.log('User_stem saving successful');
+                                }).catch(
+                                function (err) {
+                                    if (err) {
+                                        console.log('Error in Saving user_stem: ' + err);
+                                        throw err;
+                                    }
+                                });
                             console.log('Stem saving successful');
                         }).catch(
                         function (err) {

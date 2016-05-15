@@ -1,8 +1,13 @@
 var db = require('../db.js').db;
+var sq = require('../db.js').sq;
 var user = require('./user.js').user;
 var stem = require('./stem.js').stem;
 
 var user_stem = db.define('user_stem', {
+    quantity: {
+        type: sq.INTEGER,
+        defaultValue: 1
+    }
 }, {
     freezeTableName: true
 });
