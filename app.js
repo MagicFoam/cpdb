@@ -50,6 +50,38 @@ app.use('/home', home);
 var profile = require('./routes/profile');
 app.use('/profile', profile);
 
+var user = require('./models/user').user;
+var user_stem = require('./models/user_stem').user_stem;
+var stem = require('./models/stem').stem;
+var adv = require('./models/adv.js').adv;
+var adv_stem = require('./models/adv_stem.js').adv_stem;
+
+var fill_data = require('./fill_data');
+
+var db = require('./db.js').db;
+
+user.sync().then(
+     function() {
+         user.count().then(function (count) {
+             if (count == 0) {
+                 stem.sync().then(function() {
+                     user_stem.sync();
+                     adv.sync().then(function() {
+                         adv_stem.sync().then(function() {
+                             fill_data(20, 500);
+                         });
+                     });
+                 });
+             }
+         });
+     }).catch(function(err) {
+    if (err) {
+        console.log('Error in creating tables: ' + err);
+        throw err;
+    }
+});
+
+
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {
     var err = new Error('Not Found');

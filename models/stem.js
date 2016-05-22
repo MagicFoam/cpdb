@@ -13,7 +13,7 @@ var stem = db.define('stem', {
     freezeTableName: true
 });
 
-stem.sync();
+//stem.sync();
 
 module.exports = {
     stem: stem

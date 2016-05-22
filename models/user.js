@@ -27,7 +27,7 @@ var user = db.define('user', {
 	freezeTableName: true
 });
 
-user.sync();
+//user.sync();
 
 module.exports = {
 	user: user

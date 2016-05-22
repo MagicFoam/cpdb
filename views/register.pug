@@ -8,36 +8,41 @@ block content
 			$('#calendar').simpleDatepicker();
 			// Привязать вызов календаря к полю с CSS идентификатором #calendar
 		});
-	div.container
-		div.row
-			div.col-sm-6.col-md-4.col-md-offset-4
-				h1.text-center.login-title Регистрация
-					div.signup-wall
-						form(class='form-signin', action='/signup', method='POST')
-							input(type='text', name='username', class='form-control',
-									placeholder='Имя пользователя',required, autofocus)
-							input(type='password', name='password', class='form-control',
-									placeholder='Пароль', required)
-							input(type='email', name='email', class='form-control', placeholder='E-mail',required)
-							input(type='text', name='firstName', class='form-control',
-									placeholder='Имя',required)
-							input(type='text', name='lastName', class='form-control', placeholder='Фамилия',required)
-							p
-							b Ваш пол:
-							br
-							input(type='radio', class='form-radio', name='gender', value='m', required)
-							|Мужской
-							input(type='radio', class='form-radio', name='gender', value='f', required)
-							|Женский
-							br
-							input#calendar(type='text', name='date', class='form-control', required,
-											placeholder='Дата рождения')
-							p
-								b Ваши интересы:
-							textarea(type ='text', rows='10', cols='25', name='text_stem', class ='form-control', required)
-							br
-							button(class='btn btn-lg btn-primary btn-block', type='submit') Зарегистрироваться
-							span.clearfix
+	header
+		a.sign_out(href='/') Вход
+		hr.hr
+	main
+		div.container
+			div.row
+				div.col-sm-6.col-md-4.col-md-offset-4
 					#message
 						if message
 							h1.text-center.error-message #{message}
+					h1.text-center.login-title Регистрация
+						div.signup-wall
+							form(class='form-signin', action='/signup', method='POST')
+								input(type='text', name='username', class='form-control',
+									placeholder='Имя пользователя',required, autofocus)
+								input(type='password', name='password', class='form-control',
+									placeholder='Пароль', required)
+								input(type='email', name='email', class='form-control', placeholder='E-mail',required)
+								input(type='text', name='firstName', class='form-control',
+									placeholder='Имя',required)
+								input(type='text', name='lastName', class='form-control', placeholder='Фамилия',required)
+								p
+								b Ваш пол:
+								input(type='radio', class='form-radio', name='gender', value='m', required)
+								|Мужской
+								input(type='radio', class='form-radio', name='gender', value='f', required)
+								|Женский
+								br
+								br
+								input#calendar(type='text', name='date', class='form-control', required,
+											placeholder='Дата рождения')
+								br
+								p
+									b Ваши интересы:
+								textarea(type ='text', rows='10', cols='25', name='text_stem', class ='form-control', required)
+								br
+								button(class='btn btn-lg btn-primary btn-block', type='submit') Зарегистрироваться
+								span.clearfix

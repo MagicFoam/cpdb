@@ -12,7 +12,7 @@ var adv = db.define('adv', {
     freezeTableName: true
 });
 
-adv.sync();
+//adv.sync();
 
 module.exports = {
     adv: adv
