@@ -14,6 +14,14 @@ hr {
     height: 2px;
 }
 
+.thumb img  {
+    border: 2px solid #55c5e9; /* Рамка вокруг фотографии */
+    padding: 15px; /* Расстояние от картинки до рамки */
+    background: #666; /* Цвет фона */
+    margin-right: 10px; /* Отступ справа */
+    margin-bottom: 10px; /* Отступ снизу */
+   }
+
 .my_table{
     border-collapse: separate;
     border-spacing: 20px;

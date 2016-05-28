@@ -1,9 +1,9 @@
 "use strict";
 
-var natural = require('natural');
+let natural = require('natural');
 
-var enStopwords = require('natural/lib/natural/util/stopwords').words;
-var ruStopwords = require('natural/lib/natural/util/stopwords_ru').words;
+let enStopwords = require('natural/lib/natural/util/stopwords').words;
+let ruStopwords = require('natural/lib/natural/util/stopwords_ru').words;
 
 
 
@@ -59,7 +59,7 @@ const stopwords = new Set(enStopwords.concat(ruStopwords, `
 
 const reTrash = /[^a-zа-яё]+/i;
 
-var st = class {
+let st = class {
   constructor() {
     this.enStemmer = natural.PorterStemmer;
     this.ruStemmer = natural.PorterStemmerRu;

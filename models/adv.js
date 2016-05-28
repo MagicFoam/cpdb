@@ -1,7 +1,9 @@
-var sq = require('../db.js').sq;
-var db = require('../db.js').db;
+"use strict";
 
-var adv = db.define('adv', {
+let sq = require('../db.js').sq;
+let db = require('../db.js').db;
+
+let adv = db.define('adv', {
     name: {
         type: sq.STRING
     },

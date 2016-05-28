@@ -1,5 +1,7 @@
-var Sequelize = require('sequelize');
-var sequelize = new Sequelize('main', null, null, {
+"use strict";
+
+let Sequelize = require('sequelize');
+let sequelize = new Sequelize('main', null, null, {
 	host: 'localhost',
 	dialect: 'sqlite',
 	pool: {

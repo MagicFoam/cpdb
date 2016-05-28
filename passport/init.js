@@ -1,6 +1,8 @@
-var login = require('./login');
-var signup = require('./signup');
-var user = require('../models/user').user;
+"use strict";
+
+let login = require('./login');
+let signup = require('./signup');
+let user = require('../models/user').user;
 
 module.exports = function(passport){
 	// Passport needs to be able to serialize and

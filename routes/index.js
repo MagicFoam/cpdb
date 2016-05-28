@@ -1,7 +1,9 @@
-var express = require('express');
-var router = express.Router();
+"use strict";
 
-var rootIsAuthentificated = function(req, res, next) {
+let express = require('express');
+let router = express.Router();
+
+let rootIsAuthentificated = function(req, res, next) {
 	if (!req.isAuthenticated())
 		return next();
 	res.redirect('/home');

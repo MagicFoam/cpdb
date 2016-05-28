@@ -7,7 +7,7 @@
 
 (function($) { // create private scope (inside you can use $ instead of jQuery)
 
-    // functions and vars declared here are effectively 'singletons'.  there will be only a single
+    // functions and lets declared here are effectively 'singletons'.  there will be only a single
     // instance of them.  so this is a good place to declare any immutable items or stateless
     // functions.  for example:
 
@@ -20,7 +20,7 @@
     // next, declare the plugin function
     $.fn.simpleDatepicker = function(options) {
 
-        // functions and vars declared here are created each time your plugn function is invoked
+        // functions and lets declared here are created each time your plugn function is invoked
 
         // you could probably refactor your 'build', 'load_month', etc, functions to be passed
         // the DOM element from below
@@ -218,7 +218,7 @@
         // iterate the matched nodeset
         return this.each(function() {
 			
-            // functions and vars declared here are created for each matched element. so if
+            // functions and lets declared here are created for each matched element. so if
             // your functions need to manage or access per-node state you can defined them
             // here and use $this to get at the DOM element
 			

@@ -1,70 +1,70 @@
 "use strict";
 
-var express = require('express');
-var router = express.Router();
-var user_stem = require('../models/user_stem').user_stem;
-var stem = require('../models/stem').stem;
-var stemmer = require('../stemmer.js').st;
-var adv = require('../models/adv.js').adv;
-var adv_stem = require('../models/adv_stem.js').adv_stem;
+let express = require('express');
+let router = express.Router();
+let user = require('../models/user').user;
+let user_stem = require('../models/user_stem').user_stem;
+let stem = require('../models/stem').stem;
+let stemmer = require('../stemmer.js').st;
+let adv = require('../models/adv.js').adv;
+let adv_stem = require('../models/adv_stem.js').adv_stem;
 
-const clusters_count = 3;
-
-var clusters = [clusters_count];
-
-var feature_t = class {
+let feature_t = class {
     constructor() {
         this.id = 1;
         this.val = 0;
     }
 };
 
-var object_t = class {
+let object_t = class {
     constructor() {
-        this.cid = 1;
+        this.id = 1;
+        this.cid = -1;
         this.major = 0;
         this.n = 0;
         this.features = [];
     }
 };
 
-var cluster_t = class {
+let cluster_t = class {
     constructor() {
         this.size = 0;
         this.major = 0;
-        this.features = [][2];
+        this.features_0 = [];
+        this.features_1 = [];
     }
 };
 
-var distance_to_cluster = function(obj, cluster) {
-    var diff = 0;
-    for (var i = 0; i < obj.n; i++) {
-        var feature = obj.features[i];
-        diff = diff + feature.val * cluster.features[feature.id][0];
+function distance_to_cluster(obj, cluster) {
+    let diff = 0;
+    for (let i = 0; i < obj.n; i++) {
+        let feature = obj.features[i];
+        diff = diff + feature.val * cluster.features_0[feature.id];
     }
     return obj.major + cluster.major - 2 * diff;
-};
+}
 
-var estimate_centroids = function(clusters, nclusters, nfeatures) {
-  for (var cid = 0; cid < nclusters; cid++) {
-      var cluster = clusters[cid];
+function estimate_centroids(clusters, nclusters, nfeatures) {
+  for (let cid = 0; cid < nclusters; cid++) {
+      let cluster = clusters[cid];
       if (cluster.size == 0)
           continue;
       cluster.major = 0;
-      for (var i = 0; i < nfeatures; i++) {
-          cluster.features[i][0] = cluster[i][1] / cluster.size;
-          cluster.features[i][1] = 0;
-          cluster.major = cluster.major + cluster.features[i][0] * cluster.features[i][0]
+      for (let i = 0; i < nfeatures; i++) {
+          cluster.features_0[i] = cluster.features_1[i] / cluster.size;
+          cluster.features_1[i] = 0;
+          cluster.major = cluster.major + cluster.features_0[i] * cluster.features_0[i];
       }
       cluster.size = 0;
   }
-};
+}
 
-var nearest_cluster = function(object, clusters, nclusters) {
-    var min_dist = distance_to_cluster(object, clusters[0]);
-    var min_dist_cid = 0;
-    for (var cid = 1; cid < nclusters; cid++) {
-        var dist = distance_to_cluster(object, clusters[cid]);
+function nearest_cluster(object, clusters, nclusters) {
+    let min_dist = distance_to_cluster(object, clusters[0]);
+    let min_dist_cid = 0;
+    let dist = 0;
+    for (let cid = 0; cid < nclusters; cid++) {
+        dist = distance_to_cluster(object, clusters[cid]);
         if (dist < min_dist) {
             min_dist = dist;
             min_dist_cid = cid;
@@ -77,46 +77,177 @@ var nearest_cluster = function(object, clusters, nclusters) {
         min_dist_cid: min_dist_cid,
         dist: dist
     };
-};
+}
 
-var distribute_objects = function(objects, nobjects, clusters, nclusters) {
-    var changed = false;
-    for (var oid = 0; oid < nobjects; oid++) {
-        var object = objects[oid];
-        var cid = nearest_cluster(object, clusters, nclusters).min_dist_cid;
+function distribute_objects(objects, nobjects, clusters, nclusters) {
+    let changed = false;
+    for (let oid = 0; oid < nobjects; oid++) {
+        let object = objects[oid];
+        let cid = nearest_cluster(object, clusters, nclusters).min_dist_cid;
         if (cid !== object.cid) {
             changed = true;
         }
         object.cid = cid;
-        var cluster = clusters[cid];
+        let cluster = clusters[cid];
         cluster.size = cluster.size + 1;
-        for (var i = 0; i < object.n; i++) {
-            cluster.features[object.features[i].id][1] += object.features[i].val;
+        for (let i = 0; i < object.n; i++) {
+            cluster.features_1[object.features[i].id] += object.features[i].val;
         }
     }
     return changed;
-};
+}
 
-var step = function(objects, nobjects, clusters, nclusters, nfeatures) {
+function clust_step(objects, nobjects, clusters, nclusters, nfeatures) {
     estimate_centroids(clusters, nclusters, nfeatures);
-    return distribute_objects(objets, nobjects, clusters, nclusters);
-};
+    let changed = distribute_objects(objects, nobjects, clusters, nclusters);
+    return changed;
+}
 
-var clusterization = function(objects, nobjects, clusters, nclusters, nfeatures) {
-    while(step(objects, nobjects, clusters, nclusters, nfeatures)){}
-};
+function calc_object_major(object) {
+    let major = 0;
+    for (let i = 0; i < object.n; i++)
+        major += object.features[i].val * object.features[i].val;
+    object.major = major;
+}
 
-var isAuthenticated = function (req, res, next) {
-    // if user is authenticated in the session, call the next() to call the next request handler
-    // Passport adds this method to request object. A middleware is allowed to add properties to
-    // request and response objects
+function calc_cluster_major(cluster, nfeatures) {
+    let major = 0;
+    for (let i = 0; i < nfeatures; i++)
+        major += cluster.features_0[i] * cluster.features_0[i];
+    cluster.major = major;
+}
+
+function init_object(object, id, nobjects, custom_stems) {
+    object.id = id;
+    object.n = custom_stems.length;
+    for (let i = 0; i < custom_stems.length; i++) {
+        object.features[i] = new feature_t();
+        object.features[i].id = custom_stems[i].id - 1;
+        let tf =  1 + Math.log(custom_stems[i].user_stem.quantity);
+        let idf = Math.log(1 + nobjects / custom_stems[i].quantity);
+        object.features[i].val = tf * idf;
+    }    
+    calc_object_major(object);
+}
+
+function init_cluster(cluster, nfeatures, proto) {
+    for (let i = 0; i < proto.n; i++)
+        cluster.features_0[proto.features[i].id] = proto.features[i].val;
+    calc_cluster_major(cluster, nfeatures);
+}
+
+function search_selected(objects, nobjects, sum) {
+    let l = 0;
+    let r = nobjects - 1;
+    while (l <= r) {
+        let k = Math.floor((l + r) / 2);
+        if (objects[k].major < sum)
+            l = k + 1;
+        else
+            r = k - 1;
+    }
+    return l;
+}
+
+function find_proto(objects, nobjects, clusters, nclusters) {
+    let sum = 0;
+    for (let oid = 0; oid < nobjects; oid++) {
+        let dist;
+        nearest_cluster(objects[oid], clusters, nclusters).dist;
+        sum += dist;
+        objects[oid].major = sum;
+    }
+    sum *= Math.random();
+    let oid = search_selected(objects, nobjects, sum);
+    return objects[oid];
+}
+
+function generate_clusters(clusters, nclusters, nfeatures, objects, nobjects) {
+    init_cluster(clusters[0], nfeatures, objects[Math.round(Math.random() * nobjects - 1)]);
+    for (let cid = 1; cid < nclusters; cid++) {
+        let proto = find_proto(objects, nobjects, clusters, cid);
+        init_cluster(clusters[cid], nfeatures, proto);
+    }
+    for (let oid = 0; oid < nobjects; oid++) {
+        calc_object_major(objects[oid]);
+    }
+}
+
+function clusterization() {
+    let nclusters = 0;
+    let nfeatures = 0;
+    let nobjects = 0;
+    let objects = []; 
+    let clusters = [];
+    let flag = 0;
+    user.findAndCountAll().then(function(users) {
+        stem.findAndCountAll().then(function(stems) {
+            nclusters = Math.round(Math.log(users.count));
+            nobjects = users.count;
+            nfeatures = stems.count;
+            for (let i = 0; i < nobjects; i++) {
+                objects[i] = new object_t();
+            }
+            for (let i = 0; i < nclusters; i++) {
+                clusters[i] = new cluster_t();
+                clusters[i].features_0 = [];
+                clusters[i].features_1 = [];
+                for (let j = 0; j < stems.count; j++) {
+                    clusters[i].features_0[j] = 0;
+                    clusters[i].features_1[j] = 0;
+                }
+            }
+            let j = 0;
+            for (let i = 0; i < nobjects; i++) {
+                users.rows[i].getStems().then(function(custom_stems) {
+                    objects[i].n = custom_stems.length;
+                    objects[i].id = users.rows[i].id;
+                    for (let j = 0; j < custom_stems.length; j++) {
+                        objects[i].features[j] = new feature_t();
+                        objects[i].features[j].id = custom_stems[j].id - 1;
+                        let tf =  1 + Math.log(custom_stems[j].user_stem.quantity);
+                        let idf = Math.log(1 + nobjects / custom_stems[j].quantity);
+                        objects[i].features[j].val = tf * idf;
+                    }
+                    let major = 0;
+                    for (let j = 0; j < objects[i].n; j++) {
+                        major += objects[i].features[j].val * objects[i].features[j].val;
+                    }
+                    objects[i].major = major;
+                    j++;
+                }).then(function () {
+                    if (j == nobjects) {
+                        generate_clusters(clusters, nclusters, nfeatures, objects, nobjects);
+                        while(clust_step(objects, nobjects, clusters, nclusters, nfeatures)){}
+                        for (let i = 0; i < nclusters; i++) {
+                            let sorted_stems = []
+                            for (let j = 0; j < nfeatures; j++) {
+                                sorted_stems[j] = clusters[i].features_0[j];
+                            }
+                            sorted_stems.sort(function(a,b){return b-a});
+                            for (let j = 0; j < 10; j++) {
+                                let index = clusters[i].features_0.indexOf(sorted_stems[j]);
+                                console.log(stems.rows[index].stem);
+                            }
+                        }
+                    }
+                });
+            }                
+        })
+    })    
+    return {
+        objects: objects,
+        clusters: clusters
+    }
+}
+
+let isAuthenticated = function (req, res, next) {
     if (req.isAuthenticated())
         return next();
-    // if the user is not authenticated then redirect him to the login page
     res.redirect('/');
 };
 
-var save_user_stem = function(new_user_stem) {
+let save_user_stem = function(new_user_stem) {
     user_stem.findOne({ where: { userId : new_user_stem.userId, stemId: new_user_stem.stemId } }).then(
         function(usr_stm) {
             if (!usr_stm) {
@@ -170,24 +301,23 @@ var save_user_stem = function(new_user_stem) {
         });
 };
 
-/* GET Home Page */
 router.get('/', isAuthenticated, function(req, res) {
     res.render('home', { user: req.user });
 });
 
 router.post('/search', function(req, res) {
-    var words = req.body.query;
-    var id = req.body.id;
-    var stm = new stemmer();
+    let words = req.body.query;
+    let id = req.body.id;
+    let stm = new stemmer();
     let wrd = stm.tokenizeAndStem(words);
     for (let value of wrd) {
         stem.findOne({ where: { stem :  value } }).then(
             function(stm) {
                 if (!stm) {
-                    var new_stem = stem.build({stem: value});
+                    let new_stem = stem.build({stem: value});
                     new_stem.save().then(
                         function (saved_stem) {
-                            var new_user_stem = user_stem.build({
+                            let new_user_stem = user_stem.build({
                                 userId: id,
                                 stemId: saved_stem.id
                             });
@@ -204,15 +334,15 @@ router.post('/search', function(req, res) {
                                 });
                             console.log('Stem saving successful');
                         }).catch(
-                        function (err) {
-                            if (err) {
-                                console.log('Error in Saving stem: ' + err);
-                                throw err;
-                            }
+                            function (err) {
+                                if (err) {
+                                    console.log('Error in Saving stem: ' + err);
+                                    throw err;
+                                }
                         });
                 }
                 else {
-                    var new_user_stem = user_stem.build({
+                    let new_user_stem = user_stem.build({
                         userId: id,
                         stemId: stm.id
                     });
@@ -220,7 +350,10 @@ router.post('/search', function(req, res) {
                 }
             });
     }
-    res.send(id);
+    let cl = clusterization();
+    res.send({
+        cid: 1//cl.objects[0].cid
+    });
 });
 
 module.exports = router;

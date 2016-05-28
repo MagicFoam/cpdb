@@ -1,18 +1,16 @@
-var db = require('../db.js').db;
-var adv = require('./adv.js').adv;
-var stem = require('./stem.js').stem;
+"use strict";
 
-var adv_stem = db.define('adv_stem', {
+let db = require('../db.js').db;
+let adv = require('./adv.js').adv;
+let stem = require('./stem.js').stem;
+
+let adv_stem = db.define('adv_stem', {
 }, {
     freezeTableName: true
 });
 
-adv_stem.belongsTo(stem);
-adv_stem.belongsTo(adv);
-adv.hasMany(adv_stem);
-stem.hasMany(adv_stem);
-
-//adv_stem.sync();
+adv.belongsToMany(stem, { through: adv_stem });
+stem.belongsToMany(adv, { through: adv_stem });
 
 module.exports = {
     adv_stem: adv_stem
