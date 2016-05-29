@@ -9,6 +9,8 @@ let stemmer = require('../stemmer.js').st;
 let adv = require('../models/adv.js').adv;
 let adv_stem = require('../models/adv_stem.js').adv_stem;
 
+const pictures_count = 6;
+
 let feature_t = class {
     constructor() {
         this.id = 1;
@@ -18,7 +20,6 @@ let feature_t = class {
 
 let object_t = class {
     constructor() {
-        this.id = 1;
         this.cid = -1;
         this.major = 0;
         this.n = 0;
@@ -34,6 +35,10 @@ let cluster_t = class {
         this.features_1 = [];
     }
 };
+
+function rand_int(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 function distance_to_cluster(obj, cluster) {
     let diff = 0;
@@ -173,13 +178,14 @@ function generate_clusters(clusters, nclusters, nfeatures, objects, nobjects) {
     }
 }
 
-function clusterization() {
+function clusterization(current_user_id) {
     let nclusters = 0;
     let nfeatures = 0;
     let nobjects = 0;
     let objects = []; 
     let clusters = [];
     let flag = 0;
+    let file_names = [];
     user.findAndCountAll().then(function(users) {
         stem.findAndCountAll().then(function(stems) {
             nclusters = Math.round(Math.log(users.count));
@@ -197,11 +203,10 @@ function clusterization() {
                     clusters[i].features_1[j] = 0;
                 }
             }
-            let j = 0;
+            let objects_ready = 0;
             for (let i = 0; i < nobjects; i++) {
                 users.rows[i].getStems().then(function(custom_stems) {
                     objects[i].n = custom_stems.length;
-                    objects[i].id = users.rows[i].id;
                     for (let j = 0; j < custom_stems.length; j++) {
                         objects[i].features[j] = new feature_t();
                         objects[i].features[j].id = custom_stems[j].id - 1;
@@ -214,31 +219,33 @@ function clusterization() {
                         major += objects[i].features[j].val * objects[i].features[j].val;
                     }
                     objects[i].major = major;
-                    j++;
+                    objects_ready++;
                 }).then(function () {
-                    if (j == nobjects) {
+                    if (objects_ready == nobjects) {
                         generate_clusters(clusters, nclusters, nfeatures, objects, nobjects);
                         while(clust_step(objects, nobjects, clusters, nclusters, nfeatures)){}
-                        for (let i = 0; i < nclusters; i++) {
-                            let sorted_stems = []
-                            for (let j = 0; j < nfeatures; j++) {
-                                sorted_stems[j] = clusters[i].features_0[j];
-                            }
-                            sorted_stems.sort(function(a,b){return b-a});
-                            for (let j = 0; j < 10; j++) {
-                                let index = clusters[i].features_0.indexOf(sorted_stems[j]);
-                                console.log(stems.rows[index].stem);
-                            }
+                        let sorted_stems = []
+                        let cid = objects[current_user_id - 1].cid;
+                        for (let j = 0; j < nfeatures; j++) {
+                            sorted_stems[j] = clusters[cid].features_0[j];
+                        }
+                        sorted_stems.sort(function (a, b) {return b - a});
+                        for (let j = 0; j < pictures_count; j++) {
+                            let index = clusters[cid].features_0.indexOf(sorted_stems[j]);
+                            stems.rows[index].getAdvs().then(function(custom_advs) {
+                                if (!custom_advs) {
+                                    file_names.push(custom_advs[rand_int(0, custom_advs.length - 1)].location);
+                                }
+                                else {
+                                    file_names.push(rand_int(0, 6) + '.png');       
+                                }
+                            })
                         }
                     }
                 });
             }                
         })
     })    
-    return {
-        objects: objects,
-        clusters: clusters
-    }
 }
 
 let isAuthenticated = function (req, res, next) {
@@ -350,10 +357,10 @@ router.post('/search', function(req, res) {
                 }
             });
     }
-    let cl = clusterization();
+    clusterization(req.user.id);
     res.send({
-        cid: 1//cl.objects[0].cid
-    });
+        data: 'data'
+    })
 });
 
 module.exports = router;

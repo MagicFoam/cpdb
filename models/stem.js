@@ -9,7 +9,7 @@ let stem = db.define('stem', {
     },
     quantity: {
         type: sq.INTEGER,
-        defaultValue: 1
+        defaultValue: 0
     }
 }, {
     freezeTableName: true

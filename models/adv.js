@@ -4,10 +4,10 @@ let sq = require('../db.js').sq;
 let db = require('../db.js').db;
 
 let adv = db.define('adv', {
-    name: {
+    location: {
         type: sq.STRING
     },
-    location: {
+    link: {
         type: sq.STRING
     }
 }, {

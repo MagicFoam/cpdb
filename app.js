@@ -70,7 +70,7 @@ user.sync().then(
                      user_stem.sync();
                      adv.sync().then(function() {
                          adv_stem.sync().then(function() {
-                             fill_data(20, 100);
+                             fill_data(20, 100, 6);
                          });
                      });
                  });

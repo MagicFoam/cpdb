@@ -3,9 +3,11 @@
 let user_stem = require('./models/user_stem').user_stem;
 let stem = require('./models/stem').stem;
 let user = require('./models/user').user;
+let adv = require('./models/adv').adv;
 let bCrypt = require('bcrypt-nodejs');
 let words = require('./words_string');
 let stemmer = require('./stemmer.js').st;
+let advs = require('./adv_data.js');
 
 function rand_int(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -16,7 +18,7 @@ function createHash(password) {
     return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
 };
 
-module.exports = function(nobjects, nfeatures) {
+module.exports = function(nobjects, nfeatures, nadvs) {
     for (let i = 0; i < nobjects; i++) {
         let newUser = user.build({username: i});
         newUser.password = createHash(i);
@@ -64,4 +66,24 @@ module.exports = function(nobjects, nfeatures) {
             }
         })
     });
+    for (let i = 0; i < nadvs; i++) {
+        let new_adv = adv.build({link: ''});
+        new_adv.location = advs[i].picture_file;
+        new_adv.save().then(function(saved_adv) {
+            for (let j = 0; j < advs[i].words.length; j++) {
+                stem.findOne({where: {stem: advs[i].words[j]}}).then(function(stm) {
+                    if (!stm) {
+                        let new_stem = stem.build({stem: advs[i].words[j]});
+                        new_stem.quantity = 0;
+                        new_stem.save().then(function(saved_stem){
+                            saved_adv.addStem(saved_stem);
+                        })
+                    }
+                    else {
+                        saved_adv.addStem(stm);
+                    }
+                })        
+            }
+        })
+    }
 };
