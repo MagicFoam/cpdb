@@ -22,18 +22,21 @@ block content
 	.container
 		.row
 			.col-sm-8.col-sm-offset-2
-				p.thumb
-					a(href='http://moscow.shop.megafon.ru/planshet/92225.html?utm_source=vk&utm_medium=ag-media_media_retargeting-devices_tgb_cpc&utm_campaign=fed_flight_shop_planshet_v_dorogu_rf&utm_content=creative_1')
-						img(src='images/tablet_1.png', alt='Фотография 1', width='110', height='190')
-					img(src='images/tablet_1.png', alt='Фотография 2', width='110', height='190')
-					img(src='images/tablet_1.png', alt='Фотография 3', width='110', height='190')
-					img(src='images/tablet_1.png', alt='Фотография 4', width='110', height='190')
-					img(src='images/tablet_1.png', alt='Фотография 5', width='110', height='190')
-					img(src='images/tablet_1.png', alt='Фотография 6', width='110', height='190')
+				p(id='pictures').thumb
 	script(type="text/javascript").
-		var id = '#{user.id}';
+		var home_user_id = '#{user.id}';
 		$(function () {
 			$('#home_search').click(function () {
-				$.post('/home/search', { query: $('#search_input').val(), id : id}, function(data){console.log(data)});
+				$.post('/home/search', { query: $('#search_input').val(), id : home_user_id}, function(data) {
+					$('#pictures').html(
+					'<img src="images/advs/' + data.file_names[0] + '"alt="picture_1" width="110" height="190"/>' +
+					'<img src="images/advs/' + data.file_names[1] + '" alt="picture_2" width="110" height="190"/>' +
+					'<img src="images/advs/' + data.file_names[2] + '" alt="picture_3" width="110" height="190"/>' +
+					'<img src="images/advs/' + data.file_names[3] + '" alt="picture_4" width="110" height="190"/>' +
+					'<img src="images/advs/' + data.file_names[4] + '" alt="picture_5" width="110" height="190"/>' +
+					'<img src="images/advs/' + data.file_names[5] + '" alt="picture_6" width="110" height="190"/>'
+					);
+					console.log(data)
+				});
 			});
 		});

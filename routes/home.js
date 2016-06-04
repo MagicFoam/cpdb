@@ -178,7 +178,7 @@ function generate_clusters(clusters, nclusters, nfeatures, objects, nobjects) {
     }
 }
 
-function clusterization(current_user_id) {
+function clusterization(current_user_id, res) {
     let nclusters = 0;
     let nfeatures = 0;
     let nobjects = 0;
@@ -186,7 +186,8 @@ function clusterization(current_user_id) {
     let clusters = [];
     let flag = 0;
     let file_names = [];
-    user.findAndCountAll().then(function(users) {
+    user.findAndCountAll()
+        .then(function(users) {
         stem.findAndCountAll().then(function(stems) {
             nclusters = Math.round(Math.log(users.count));
             nobjects = users.count;
@@ -230,22 +231,37 @@ function clusterization(current_user_id) {
                             sorted_stems[j] = clusters[cid].features_0[j];
                         }
                         sorted_stems.sort(function (a, b) {return b - a});
-                        for (let j = 0; j < pictures_count; j++) {
-                            let index = clusters[cid].features_0.indexOf(sorted_stems[j]);
-                            stems.rows[index].getAdvs().then(function(custom_advs) {
-                                if (!custom_advs) {
-                                    file_names.push(custom_advs[rand_int(0, custom_advs.length - 1)].location);
-                                }
-                                else {
-                                    file_names.push(rand_int(0, 6) + '.png');       
-                                }
-                            })
-                        }
+                        let pictures_ready = 0;
+                        let advs_all = 0;
+                        adv.findAndCountAll().then(function (advs_a){advs_all = advs_a}).then(function() {
+                            for (let j = 0; j < pictures_count; j++) {
+                                let index = clusters[cid].features_0.indexOf(sorted_stems[j]);
+                                stems.rows[index].getAdvs().then(function(custom_advs) {
+                                    if (custom_advs.length !== 0) {
+                                        file_names.push(custom_advs[rand_int(0, custom_advs.length - 1)].location);
+                                    }
+                                    pictures_ready++;
+                                }).then(function () {
+                                    if (pictures_ready == pictures_count) {
+                                        while (file_names.length !== pictures_count) {    
+                                            let name = advs_all.rows[rand_int(0, advs_all.count - 1)].location;
+                                            while (file_names.indexOf(name) >= 0) {
+                                                name = advs_all.rows[rand_int(0, advs_all.count - 1)].location;
+                                            }
+                                            file_names.push(name);       
+                                        }
+                                        res.send({
+                                            file_names: file_names
+                                        })
+                                    }
+                                })  
+                            }
+                        })
                     }
                 });
             }                
         })
-    })    
+    })
 }
 
 let isAuthenticated = function (req, res, next) {
@@ -262,50 +278,14 @@ let save_user_stem = function(new_user_stem) {
                     function (saved_user_stem) {
                         stem.findOne({where: {id: saved_user_stem.stemId}}).then(
                             function(stm) {
-                            stm.update({
-                                quantity: stm.quantity + 1
-                            }).then(function() {}).catch(
-                                function (err) {
-                                    if (err) {
-                                        console.log('Error in Updating stem: ' + err);
-                                        throw err;
-                                    }
-                                }
-                            )}).catch(
-                            function (err) {
-                                if (err) {
-                                    console.log('Error in Updating stem: ' + err);
-                                    throw err;
-                                }
-                            });
-                        console.log('User_stem saving successful');
-                    }).catch(
-                    function (err) {
-                        if (err) {
-                            console.log('Error in Saving user_stem: ' + err);
-                            throw err;
-                        }
-                    });
+                                stm.update({quantity: stm.quantity + 1}).then()
+                            })
+                    })
             }
             else {
-                usr_stm.update({
-                    quantity: usr_stm.quantity + 1
-                }).then(function() {}).catch(
-                    function (err) {
-                        if (err) {
-                            console.log('Error in Updating stem: ' + err);
-                            throw err;
-                        }
-                    }
-                );
+                usr_stm.update({quantity: usr_stm.quantity + 1}).then();
             }
-        }).catch(
-        function(err) {
-           if (err) {
-               console.log('Error in Saving user_stem: ' + err);
-               throw err;
-           }
-        });
+        })
 };
 
 router.get('/', isAuthenticated, function(req, res) {
@@ -328,25 +308,8 @@ router.post('/search', function(req, res) {
                                 userId: id,
                                 stemId: saved_stem.id
                             });
-                            //save_user_stem(new_user_stem);
-                            new_user_stem.save().then(
-                                function (saved_user_stem) {
-                                    console.log('User_stem saving successful');
-                                }).catch(
-                                function (err) {
-                                    if (err) {
-                                        console.log('Error in Saving user_stem: ' + err);
-                                        throw err;
-                                    }
-                                });
-                            console.log('Stem saving successful');
-                        }).catch(
-                            function (err) {
-                                if (err) {
-                                    console.log('Error in Saving stem: ' + err);
-                                    throw err;
-                                }
-                        });
+                            new_user_stem.save().then();
+                        })
                 }
                 else {
                     let new_user_stem = user_stem.build({
@@ -357,10 +320,7 @@ router.post('/search', function(req, res) {
                 }
             });
     }
-    clusterization(req.user.id);
-    res.send({
-        data: 'data'
-    })
+    clusterization(req.user.id, res);
 });
 
 module.exports = router;
