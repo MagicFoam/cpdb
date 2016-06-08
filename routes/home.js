@@ -186,6 +186,7 @@ function clusterization(current_user_id, res) {
     let clusters = [];
     let flag = 0;
     let file_names = [];
+    let links = [];
     user.findAndCountAll()
         .then(function(users) {
         stem.findAndCountAll().then(function(stems) {
@@ -243,15 +244,21 @@ function clusterization(current_user_id, res) {
                                     pictures_ready++;
                                 }).then(function () {
                                     if (pictures_ready == pictures_count) {
-                                        while (file_names.length !== pictures_count) {    
-                                            let name = advs_all.rows[rand_int(0, advs_all.count - 1)].location;
+                                        while (file_names.length !== pictures_count) {
+                                            let index = rand_int(0, advs_all.count - 1);
+                                            let name = advs_all.rows[index].location;
+                                            let link = advs_all.rows[index].link;
                                             while (file_names.indexOf(name) >= 0) {
-                                                name = advs_all.rows[rand_int(0, advs_all.count - 1)].location;
+                                                index = rand_int(0, advs_all.count - 1);
+                                                name = advs_all.rows[index].location;
+                                                link = advs_all.rows[index].link;
                                             }
-                                            file_names.push(name);       
+                                            file_names.push(name);
+                                            links.push(link);      
                                         }
                                         res.send({
-                                            file_names: file_names
+                                            file_names: file_names,
+                                            links: links
                                         })
                                     }
                                 })  

@@ -67,7 +67,7 @@ module.exports = function(nobjects, nfeatures, nadvs) {
         })
     });
     for (let i = 0; i < nadvs; i++) {
-        let new_adv = adv.build({link: ''});
+        let new_adv = adv.build({link: advs[i].link});
         new_adv.location = advs[i].picture_file;
         new_adv.save().then(function(saved_adv) {
             for (let j = 0; j < advs[i].words.length; j++) {

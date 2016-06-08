@@ -29,12 +29,12 @@ block content
 			$('#home_search').click(function () {
 				$.post('/home/search', { query: $('#search_input').val(), id : home_user_id}, function(data) {
 					$('#pictures').html(
-					'<img src="images/advs/' + data.file_names[0] + '"alt="picture_1" width="110" height="190"/>' +
-					'<img src="images/advs/' + data.file_names[1] + '" alt="picture_2" width="110" height="190"/>' +
-					'<img src="images/advs/' + data.file_names[2] + '" alt="picture_3" width="110" height="190"/>' +
-					'<img src="images/advs/' + data.file_names[3] + '" alt="picture_4" width="110" height="190"/>' +
-					'<img src="images/advs/' + data.file_names[4] + '" alt="picture_5" width="110" height="190"/>' +
-					'<img src="images/advs/' + data.file_names[5] + '" alt="picture_6" width="110" height="190"/>'
+					'<a href=http://'+ data.links[0] +'><img src="images/advs/' + data.file_names[0] + '"alt="picture_1" width="110" height="190"/></a>' +
+					'<a href=http://'+ data.links[1] +'><img src="images/advs/' + data.file_names[1] + '" alt="picture_2" width="110" height="190"/></a>' +
+					'<a href=http://'+ data.links[2] +'><img src="images/advs/' + data.file_names[2] + '" alt="picture_3" width="110" height="190"/></a>' +
+					'<a href=http://'+ data.links[3] +'><img src="images/advs/' + data.file_names[3] + '" alt="picture_4" width="110" height="190"/></a>' +
+					'<a href=http://'+ data.links[4] +'><img src="images/advs/' + data.file_names[4] + '" alt="picture_5" width="110" height="190"/></a>' +
+					'<a href=http://'+ data.links[5] +'><img src="images/advs/' + data.file_names[5] + '" alt="picture_6" width="110" height="190"/></a>'
 					);
 					console.log(data)
 				});
